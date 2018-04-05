@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <flow name="flowprojectFlow2">
+        <expression-transformer expression="#[new java.lang.Integer(10)]" doc:name="Expression"/>
+        <payload-type-filter expectedType="java.lang.Integer" doc:name="Payload"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <logger message="exception occcured becos of  #[exception]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="flowprojectFlow3">
+        <expression-transformer expression="#[new java.lang.Integer(10)]" doc:name="Expression"/>
+        <payload-type-filter expectedType="java.lang.Integer" doc:name="Payload"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+    </flow>
+    <flow name="flowprojectFlow1">
+        <set-payload value="#[new java.lang.Float(23.23)]" doc:name="Set Payload"/>
+        <message-filter throwOnUnaccepted="true" doc:name="Message">
+            <payload-type-filter expectedType="java.lang.Integer"/>
+        </message-filter>
+    </flow>
+    <flow name="flowprojectFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/flow1" doc:name="HTTP"/>
+        <choice doc:name="Choice">
+            <when  expression="#[message.inboundProperties.'http.query.params'.choice == 'one' ]">
+                <flow-ref name="flowprojectFlow1" doc:name="flowprojectFlow1"/>
+            </when>
+            <when expression="#[message.inboundProperties.'http.query.params'.choice =='two' ]">
+                <flow-ref name="flowprojectFlow2" doc:name="flowprojectFlow2"/>
+            </when>
+            <when expression="#[message.inboundProperties.'http.query.params'.choice == 'three' ]">
+                <flow-ref name="flowprojectFlow3" doc:name="flowprojectFlow3"/>
+            </when>
+            <otherwise>
+                <logger message="default processing" level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+        <logger message="payload is #[payload]" level="INFO" doc:name="Logger"/>
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <flow-ref name="flowprojectFlow2" doc:name="flowprojectFlow2"/>
+        </catch-exception-strategy>
+    </flow>
+</mule>

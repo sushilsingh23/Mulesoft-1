@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8082" doc:name="HTTP Listener Configuration"/>
+    <db:mysql-config name="MySQL_Configuration" host="localhost" port="3306" user="root" password="root" database="batchdb" doc:name="MySQL Configuration"/>
+    <flow name="ddFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/db" doc:name="HTTP"/>
+        <db:stored-procedure config-ref="MySQL_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[call SP_TEST(:v1,:v2,:total_value);]]></db:parameterized-query>
+            <db:in-param name="v1" value="12"/>
+            <db:in-param name="v2" value="23"/>
+            <db:out-param name="total_value"/>
+        </db:stored-procedure>
+        <logger message="db op is #[message.payload.total_value]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="ddFlow1">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/square" doc:name="HTTP"/>
+        <expression-transformer expression="#['hello']" doc:name="Expression"/>
+        <component class="dd.Square" doc:name="Java">
+        	<reflection-entry-point-resolver></reflection-entry-point-resolver>
+        	<!-- <method-entry-point-resolver >
+        		<include-entry-point method="negate"/>
+        	</method-entry-point-resolver> -->
+        </component>
+        <object-to-string-transformer doc:name="Object to String"/>
+    </flow>
+</mule>

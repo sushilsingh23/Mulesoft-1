@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <flow name="sampleFlow">
+        <set-payload value="data from sample flow" doc:name="Set Payload"/>
+    </flow>
+    <flow name="fliterdemoFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/filter" doc:name="HTTP"/>
+        <set-payload value="#[new Integer(10)]" doc:name="Set Payload"/>
+        <payload-type-filter expectedType="java.lang.Integer" doc:name="Payload"/>
+        <message-filter throwOnUnaccepted="true" doc:name="Message">
+            <payload-type-filter expectedType="java.lang.String"/>
+        </message-filter>
+        <choice doc:name="Choice">
+            <when expression="">
+                <flow-ref name="sampleFlow" doc:name="sampleFlow"/>
+            </when>
+           
+        </choice>
+        <logger message="Are you all hungry" level="INFO" doc:name="Logger"/>
+        <choice-exception-strategy doc:name="Choice Exception Strategy">
+            <catch-exception-strategy when="#[exception.causedBy('java.lang.ArithmeticException')]" doc:name="Catch Exception Strategy">
+                <flow-ref name="#[message.inboundProperties.'http.query.params'.flowname]" doc:name="Flow Reference"/>
+            </catch-exception-strategy>
+        </choice-exception-strategy>
+    </flow>
+</mule>

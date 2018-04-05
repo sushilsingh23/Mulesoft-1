@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://ws.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="SquareClass" targetNamespace="http://ws.com/">
+  <wsdl:types>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://ws.com/" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://ws.com/">
+  <xsd:element name="square" type="tns:square"/>
+  <xsd:complexType name="square">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="num" nillable="true" type="xsd:int"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="squareResponse" type="tns:squareResponse"/>
+  <xsd:complexType name="squareResponse">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="return" nillable="true" type="xsd:int"/>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="square">
+    <wsdl:part element="tns:square" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="squareResponse">
+    <wsdl:part element="tns:squareResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="SquareClassPortType">
+    <wsdl:operation name="square">
+      <wsdl:input message="tns:square" name="square">
+    </wsdl:input>
+      <wsdl:output message="tns:squareResponse" name="squareResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SquareClassSoapBinding" type="tns:SquareClassPortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="square">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="square">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="squareResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="SquareClass">
+    <wsdl:port binding="tns:SquareClassSoapBinding" name="SquareClassPort">
+      <soap:address location="http://localhost:8081/ws"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

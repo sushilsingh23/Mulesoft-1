@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+    <jms:activemq-connector name="Active_MQ" brokerURL="tcp://localhost:61616" validateConnections="true" doc:name="Active MQ" maxRedelivery="4"/>
+    <flow name="jmsexceptionFlow">
+        <jms:inbound-endpoint exchange-pattern="request-response" queue="sampleQ" connector-ref="Active_MQ" doc:name="JMS">
+            <jms:transaction action="ALWAYS_BEGIN"/>
+        </jms:inbound-endpoint>
+        <set-payload value="Exception data from Mule APP" doc:name="Set Payload"/>
+        <jms:outbound-endpoint exchange-pattern="request-response" queue="errorQ" connector-ref="Active_MQ" doc:name="JMS">
+            <jms:transaction action="ALWAYS_JOIN"/>
+        </jms:outbound-endpoint>
+        <logger message="payload is #[payload]" level="INFO" doc:name="Logger"/>
+        <component class="jmsexception.SampleException" doc:name="Java"/>
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <logger message="exception caused by #[exception.cause]" level="INFO" doc:name="Logger"/>
+        </catch-exception-strategy>
+    </flow>
+</mule>

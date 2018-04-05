@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8081" doc:name="HTTP Request Configuration"/>
+    <flow name="flow1">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/flow1" doc:name="HTTP"/>
+        <set-variable variableName="V1" value="Value-1" doc:name="Variable"/>
+        <session-variable-transformer doc:name="Session Variable"/>
+        <logger message="v1 is #[flowVars.V1] thread name is #[java.lang.Thread.currentThread().getName()]" level="INFO" doc:name="Logger"/>
+        <flow-ref name="flow2" doc:name="flow2"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/flow2" method="GET" doc:name="HTTP"/>
+        <logger message="v1 is #[flowVars.V1] thread name is #[java.lang.Thread.currentThread().getName()]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="flow2">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/flow2" doc:name="HTTP"/>
+        <logger message="v1 is #[flowVars.V1] thread name is #[java.lang.Thread.currentThread().getName()]" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>

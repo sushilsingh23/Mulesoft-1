@@ -1,0 +1,19 @@
+#%RAML 0.8
+title: MUA FlightFinder API v1
+version: 1.0
+#baseUri: http://server/api/{version}
+baseUri: http://mocksvc.mulesoft.com/mocks/ad7b31e7-6512-4612-a339-60d1eeafc240/api/{version}
+mediaType: application/json
+documentation: 
+  - title: MUA API
+    content: Returns Delta, United and American flights for a given airport code destination.
+/flights:
+  /{destination}:
+    get:
+      description: Return all flights for a destination
+      responses: 
+        200: 
+          body: 
+            application/json: 
+              example: |
+               {"flights":[{"airlineName":"United","price":400,"departureDate":"2015/03/20","planeType":"Boeing 737","origin":"MUA","emptySeats":0,"code":"ER38sd","destination":"SFO"},{"airlineName":"United","price":945,"departureDate":"2015/09/11","planeType":"Boeing 757","origin":"MUA","emptySeats":54,"code":"ER39rk","destination":"SFO"},{"airlineName":"United","price":954,"departureDate":"2015/02/12","planeType":"Boeing 777","origin":"MUA","emptySeats":23,"code":"ER39rj","destination":"SFO"}]}  

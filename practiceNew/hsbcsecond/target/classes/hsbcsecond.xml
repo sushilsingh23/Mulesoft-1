@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <http:listener-config name="HTTP_Listener_Configuration1" host="0.0.0.0" port="8082" doc:name="HTTP Listener Configuration"/>
+    <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8082" doc:name="HTTP Request Configuration"/>
+    <flow name="hsbcsecondFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/hp" doc:name="HTTP"/>
+        <set-variable variableName="flowVar1" value="flowValue1" doc:name="Variable"/>
+        <set-session-variable variableName="sessionVar1" value="sessionValue1" doc:name="Session Variable"/>
+        <set-property propertyName="outProperty" value="outValue" doc:name="Property"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/out" method="GET" doc:name="HTTP"/>
+        <logger message="flow variable is #[flowVars.flowVar1] session var is #[sessionVars.sessionVar1]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="hsbcsecondFlow1">
+        <http:listener config-ref="HTTP_Listener_Configuration1" path="/out" doc:name="HTTP"/>
+        <logger message="outbound prop from flow 1 is #[message.inboundProperties.outProperty]" level="INFO" doc:name="Logger"/>
+        <set-payload value="payload from flow2" doc:name="Set Payload"/>
+    </flow>
+</mule>

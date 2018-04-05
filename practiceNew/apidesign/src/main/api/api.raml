@@ -1,0 +1,20 @@
+#%RAML 0.8
+baseUri: http://mocksvc.mulesoft.com/mocks/1bc29799-c108-47ca-a595-3b0be415014b
+title: Srini Flight v1
+version: 1.0
+#  baseUri: http://server/api/{version}
+mediaType: applications/json
+documentation:
+  - title: My API
+    content: return all flight
+
+/flight:
+  /{destination}:
+    get:
+      description:  Return all flights
+      responses:
+        200: 
+          body: 
+            application/json: 
+              example: |
+                {"flights":[{"airlineName":"United","price":400,"departureDate":"2015/03/20","planeType":"Boeing 737","origin":"MUA","emptySeats":0,"code":"ER38sd","destination":"SFO"},{"airlineName":"United","price":945,"departureDate":"2015/09/11","planeType":"Boeing 757","origin":"MUA","emptySeats":54,"code":"ER39rk","destination":"SFO"},{"airlineName":"United","price":954,"departureDate":"2015/02/12","planeType":"Boeing 777","origin":"MUA","emptySeats":23,"code":"ER39rj","destination":"SFO"}]} 

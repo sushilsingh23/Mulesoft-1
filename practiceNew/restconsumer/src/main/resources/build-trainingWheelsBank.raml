@@ -1,0 +1,194 @@
+#%RAML 0.8
+title: Mobile Banking API
+version: 1.0
+baseUri: http://training.cloudhub.io/build/banking/rest
+documentation:
+  - title: My Banking API
+    content: This is the full API for instructors to use (or cut down) as a base for the API Design for the Anypoint Platform class.  The student's job will be to expand the API definition to have greater functionality. <br><br> As the instructor, you have the option of providing them several scales of completion, either by providing all the resource-method pairings and asking them to complete logical query or response bodies, or only a few pairings, and requiring the students to intuit logical requirements for a mobile banking API. The repo will contain a few options.
+    
+securitySchemes:
+  - oauth_2_0:
+      description: |
+          The API supports OAuth 2.0 for authenticating all API requests.
+      type: OAuth 2.0
+      describedBy:
+          headers:
+              Authorization:
+                  description: |
+                     Used to send a valid OAuth 2 access token. Do not use 
+                     with the "access_token" query string parameter.
+                  type: string
+          queryParameters:
+              access_token:
+                  description: |
+                     Used to send a valid OAuth 2 access token. Do not use together with 
+                     the "Authorization" header
+                  type: string
+          responses:
+              401:
+                  description: |
+                      Bad or expired token. This can happen if the user or the API
+                      revoked or expired an access token. To fix, you should re-
+                      authenticate the user.
+              403:
+                  description: |
+                      Bad OAuth request (wrong consumer key, bad nonce, expired
+                      timestamp...). Unfortunately, re-authenticating the user won't help here.
+      settings:
+        authorizationUri: https://www.placeholder.com/1/oauth2/authorize
+        accessTokenUri: https://api.placeholder.com/1/oauth2/token
+        authorizationGrants: [ code, token ]
+mediaType: application/json
+
+/customers:
+  description: The full collection of all users with accounts at the bank.
+  get:
+    description: Retrieve a list of all the Bank's customers.
+    responses:
+      200: 
+        body: 
+          example: |
+            [
+              {
+                "id": "1234",
+                "userName": "Nora Charles",
+                "description": "This is the savings account of one Nora Charles",
+                "dob": "01/01/1980"
+              },
+              {
+                "id": "4321",
+                "userName": "Ray Charles",
+                "description": "This is the savings account of one Ray Charles",
+                "dob": "01/01/1980"
+              }  
+            ]
+  post:
+    description: Adds a new user to the Bank's customer listing.
+    body:
+      schema: |
+        {
+          "type": "object",
+          "$schema": "http://json-schema.org/draft-03/schema",
+          "id": "http://jsonschema.net",
+          "required": true,
+          "properties": {
+            "first_name": {
+              "type": "string",
+              "required": true
+              },
+            "last_name": {
+              "type": "string",
+              "required": true
+              }
+            }
+        }
+    responses:
+        200: 
+          body: 
+            example: |
+              {
+                "message" : "Customer Created"
+              }
+  /{customer_id}:
+    put: 
+      description: Replace the customer listing indicated.
+      responses:
+        200: 
+          body: 
+            example: |
+              {
+                "message" : "Customer Created"
+              }
+    /accounts:
+      get:
+        description: Retrieve a list of bank accounts belonging to a single customer.
+        responses:
+          200: 
+            body: 
+              example: |
+                [
+                  { 
+                    "account_id" : "a2esd212343123",
+                    "user_id" : "123",
+                    "money": 11000.00
+                  },
+                  { 
+                    "account_id" : "a3esd212343123",
+                    "user_id" : "123",
+                    "money": 113300.00              
+                  }
+                ]
+      post:
+        description: Add a new bank account to a customer.
+        responses:
+            200: 
+              body: 
+                example: |
+                  {
+                    "message" : "Customer Created"
+                  }
+      /{account_id}:
+        get: 
+          description: Retrieve the details for a particular bank account belonging to a customer.
+          responses:
+            200: 
+              body: 
+                example: |
+                  [
+                    { 
+                      "account_id" : "a2esd212343123",
+                      "user_id" : "123",
+                      "money": 11000.00
+                    },
+                    { 
+                      "account_id" : "a3esd212343123",
+                      "user_id" : "123",
+                      "money": 113300.00              
+                    }
+                  ]
+        delete:
+          description: Remove a customer's bank account.
+          responses:
+              200: 
+                body: 
+                  example: |
+                    {
+                      "message" : "Account Deleted"
+                    }
+        /outgoingTransfers:
+          get:
+            description: Retrieve a list of transfers that have been sent from a customer's bank account.
+            responses:
+              200:
+                body: 
+                  example: |
+                    [
+                      { 
+                        "sourceAccount_id" : "a2esd212343123",
+                        "targetAccount_id" : "3523djfg329548",
+                        "amount": 1000.00,
+                        "description": "A written description of the transaction, provided at creation."
+                      },
+                      { 
+                        "sourceAccount_id" : "a2esd212343123",
+                        "targetAccount_id" : "3523djfg123123",
+                        "amount": 1024.00,
+                        "description": "This is the other description, again provided at creation."
+                      }
+                    ]
+          post:
+            description: Create a new outgoing transaction.
+            body:
+              example: | 
+                { 
+                  "targetAccount_id" : "3523djfg329548",
+                  "amount": 1000.00,
+                  "description": "This is the description of the transaction."
+                }
+            responses:
+                200: 
+                  body: 
+                    example: |
+                      {
+                        "message" : "Customer Created"
+                      }

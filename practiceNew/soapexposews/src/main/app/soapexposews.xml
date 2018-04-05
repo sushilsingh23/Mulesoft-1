@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:cluster="http://www.mulesoft.org/schema/mule/ee/cluster" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:ws="http://www.mulesoft.org/schema/mule/ws" xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:cxf="http://www.mulesoft.org/schema/mule/cxf" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/current/mule-cxf.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="localhost" port="8081" doc:name="HTTP Listener Configuration"/>
+    <ws:consumer-config name="Web_Service_Consumer1" 
+    wsdlLocation="soap.wsdl" service="SquareClass"
+     port="SquareClassPort" serviceAddress="http://localhost:8081/ws" doc:name="Web Service Consumer"/>
+    
+    <cxf:configuration name="CXF_Configuration" enableMuleSoapHeaders="true" initializeStaticBusInstance="true" doc:name="CXF Configuration"/>
+    <configuration defaultExceptionStrategy-ref="CatchExceptionStrategy" doc:name="Configuration">
+        <http:config useTransportForUris="false"/>
+    </configuration>
+    <flow name="soapexposewsFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/ws" doc:name="HTTP"/>
+        <cxf:jaxws-service serviceClass="com.ws.SquareClass" doc:name="CXF" configuration-ref="CXF_Configuration" namespace="http://ws.com/">
+        <cxf:outFaultInterceptors> 
+			<spring:bean id="outfault" class="com.ws.CustomSoapFaultOutInterceptor"/>
+		</cxf:outFaultInterceptors>
+        
+        </cxf:jaxws-service>
+        <component class="com.ws.SquareClass" doc:name="Java"/>
+    </flow>
+    <catch-exception-strategy name="CatchExceptionStrategy">
+        <set-payload value="excep occured and payload is #[payload]" doc:name="Set Payload"/>
+        <logger message="exception occured and handled and payload is #[payload]" level="INFO" doc:name="Logger"/>
+    </catch-exception-strategy>
+  
+    <flow name="soapexposewsFlow1">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/client" doc:name="HTTP"/>
+        <set-payload value="twelve" doc:name="Set Payload"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:input-payload doc:sample="MyPojo_1.dwl"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+%namespace ns0 http://ws.com/
+---
+{
+	ns0#square: {
+		ns0#num: payload
+	}
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <ws:consumer config-ref="Web_Service_Consumer1" operation="square" doc:name="Web Service Consumer"/>
+    </flow>
+</mule>

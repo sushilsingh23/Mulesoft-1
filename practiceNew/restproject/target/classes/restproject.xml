@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="localhost" port="8081" doc:name="HTTP Listener Configuration"/>
+    <http:request-config name="HTTP_Request_Configuration" host="training.cloudhub.io" port="80" basePath="/build/banking/rest" doc:name="HTTP Request Configuration">
+        <http:raml-api-configuration location="https://anypoint.mulesoft.com/apiplatform/repository/public/organizations/1203/apis/9565/versions/9867/files/root
+"/>
+    </http:request-config>
+    <flow name="restprojectFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/rest/{customerid}/{accountid}" doc:name="HTTP"/>
+        <logger message="#[message.inboundProperties.'http.request.uri']" level="INFO" doc:name="Logger"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/customers/{customer_id}/accounts/{account_id}" method="GET" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="customer_id" value="#[message.inboundProperties.'http.uri.params'.customerid]"/>
+                <http:uri-param paramName="account_id" value="#[message.inboundProperties.'http.uri.params'.accountid]"/>
+            </http:request-builder>
+        </http:request>
+    </flow>
+</mule>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:cluster="http://www.mulesoft.org/schema/mule/ee/cluster" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
+	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.7.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+	<http:listener-config name="HTTP_Listener_Configuration"
+		host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration" />
+	<http:request-config name="United_HTTP_Request_Configuration"
+		host="mu.mulesoft-training.com" port="80" basePath="/essentials/united/flights"
+		doc:name="HTTP Request Configuration" />
+	<http:request-config name="Bank_REST_Request_Configuration"
+		host="training.cloudhub.io" port="80" basePath="/build/banking/rest"
+		doc:name="HTTP Request Configuration">
+		<http:raml-api-configuration
+			location="https://anypoint.mulesoft.com/apiplatform/repository/public/organizations/1203/apis/9565/versions/9867/files/root" />
+	</http:request-config>
+	<ws:consumer-config name="Delta_Web_Service_Consumer"
+		wsdlLocation="http://mu.mulesoft-training.com/essentials/delta?wsdl"
+		service="TicketServiceService" port="TicketServicePort"
+		serviceAddress="http://training-u.cloudhub.io/essentials/delta"
+		doc:name="Web Service Consumer" />
+	<db:mysql-config name="Training_MySQL_Configuration"
+		host="mudb.mulesoft-training.com" port="3306"
+		user="mule" password="mule" database="training"
+		doc:name="MySQL Configuration" />
+	<sfdc:config name="Salesforce" username="YOUR_USERNAME"
+		password="YOUR_PASSWORD" securityToken="YOUR_TOKEN"
+		doc:name="Salesforce: Basic authentication" />
+    <configuration defaultExceptionStrategy-ref="getFlightsChoice_Exception_Strategy" doc:name="Configuration">
+        <http:config useTransportForUris="false"/>
+    </configuration>
+    <payload-type-filter expectedType="java.util.ArrayList" name="Filter_Not_ArrayList" doc:name="Payload"/>
+
+	<choice-exception-strategy name="getFlightsChoice_Exception_Strategy">
+		<catch-exception-strategy
+			when="#[message.?exception.causeMatches('com.mulesoft.weave.*')]" doc:name="DataWeave exception - No flights">
+			<set-payload
+				value="NO FLIGHTS TO #[flowVars.destination]. ERROR: #[exception]"
+				doc:name="Set Payload" />
+			<set-property propertyName="http.status" value="400"
+				doc:name="Property" />
+			<logger level="INFO" doc:name="Logger" />
+		</catch-exception-strategy>
+		<catch-exception-strategy doc:name="Catch all others - Data unavailable">
+			<set-payload value="DATA IS UNAVAILABLE. TRY LATER. ERROR: #[exception]"
+				doc:name="Set Payload" />
+			<set-property propertyName="http.status" value="500"
+				doc:name="Property" />
+			<logger level="INFO" doc:name="Logger" />
+		</catch-exception-strategy>
+	</choice-exception-strategy>
+
+</mule>

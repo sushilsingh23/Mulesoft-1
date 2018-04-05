@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:context="http://www.springframework.org/schema/context" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="localhost" port="8081" doc:name="HTTP Listener Configuration"/>
+    <context:property-placeholder location="http://c:/Dev/hello.properties"/>
+    <flow name="messagedemoFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/message" doc:name="HTTP"/>
+        <set-payload value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt; &lt;artists&gt;&lt;artist&gt;&lt;name&gt;enrique&lt;/name&gt;&lt;city&gt;spain&lt;/city&gt;&lt;/artist&gt;&lt;/artists&gt;" doc:name="Set Payload"/>
+        <logger message="#[xpath('/artists/artist/name').text]" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>
