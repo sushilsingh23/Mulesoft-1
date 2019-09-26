@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8084" doc:name="HTTP Listener Configuration"/>
+    <http:request-config name="HTTP_Request_Configuration" host="training-american-ws.cloudhub.io" port="80" basePath="/api/flights" doc:name="HTTP Request Configuration"/>
+    <flow name="consume_restful_serviceFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/getAllFlights" allowedMethods="GET" doc:name="HTTP"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/" method="GET" doc:name="HTTP"/>
+        <logger message="#[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="getFlightById">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="getFlightById/{flightId}" allowedMethods="GET" doc:name="HTTP"/>
+        <set-variable variableName="flightId" value="#[message.inboundProperties.'http.uri.params'.flightId]" doc:name="Variable"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/{flightId}" method="GET" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="flightId" value="#[flowVars.flightId]"/>
+            </http:request-builder>
+        </http:request>
+        <logger message="#[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="deleteFlightById">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="deleteFlightById/{flightId}" allowedMethods="DELETE" doc:name="HTTP"/>
+        <set-variable variableName="flightId" value="#[message.inboundProperties.'http.uri.params'.flightId]" doc:name="Variable"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/{flightId}" method="DELETE" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="flightId" value="#[flowVars.flightId]"/>
+            </http:request-builder>
+        </http:request>
+        <logger message="#[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="addFlight">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/addFlight" allowedMethods="POST" doc:name="HTTP"/>
+        <set-payload value="#[message.payload]" doc:name="Set Payload"/>
+        <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/" method="POST" doc:name="HTTP"/>
+        <logger message="#[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>

@@ -1,0 +1,14 @@
+{
+"Employees":[{
+ "EmployeeName":"Sachin",
+ "Designation":"Senior Consultant",
+ "Salary":"65000",
+ "Age":"31"
+},
+{
+ "EmployeeName":"Sagar",
+ "Designation":"Manager",
+ "Salary":"95000",
+ "Age":"35"
+}]
+}

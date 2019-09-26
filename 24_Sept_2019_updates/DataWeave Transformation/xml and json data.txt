@@ -1,0 +1,131 @@
+allowed methods - POST
+
+------------------------------------------------------first format-----------
+{
+"Employees":[{
+ "EmployeeName":"Sachin",
+ "Designation":"Senior Consultant",
+ "Salary":"65000",
+ "Age":"31"
+},
+{
+ "EmployeeName":"Sagar",
+ "Designation":"Manager",
+ "Salary":"95000",
+ "Age":"35"
+}]
+}
+
+
+<Employees>
+<Employee>
+<Name>Sachin</Name>
+<Designation>Senior Consultant</Designation>
+<Salary>65000</Salary>
+<Age>31</Age>
+</Employee>
+<Employee>
+<Name>Sagar</Name>
+<Designation>Manager</Designation>
+<Salary>95000</Salary>
+<Age>35</Age>
+</Employee>
+</Employees>
+
+XML to JSON output
+------------------
+------------------------------second format----------
+
+
+{
+    "Employees": {
+        "Employee": [
+            {
+                "Name": "Sachin",
+                "Designation": "Senior Consultant",
+                "Salary": "65000",
+                "Age": "31"
+            },
+            {
+                "Name": "Sagar",
+                "Designation": "Manager",
+                "Salary": "95000",
+                "Age": "35"
+            }
+        ]
+    }
+}
+
+
+
+
+json to xml output
+-------------------
+if uses first format - getting only one employee details
+if uses second format - getting proper output
+
+
+
+
+
+
+transform message
+------------------
+
+Transform message properties
+payload unknown define
+add
+emp_json
+create type
+from type---------select json
+select Example-----------select json file
+
+----------------------------------------------------
+
+
+
+DataWeave transformation with Mule ESB
+--------------------------------------
+
+{
+"FirstName":"Amar",
+"LastName":"Malik",
+"Designation":"Senior consultant",
+"Division":"FS"
+}
+
+{
+"Id":"101",
+"Name":"Amar Malik",
+"Position":"Senior consultant",
+"Division":"FS"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
